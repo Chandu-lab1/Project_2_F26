@@ -64,7 +64,7 @@ void print_entry(const char *directory_path, const char *file_name)
 }
 
 /* Opens one directory and goes through each entry inside it. */
-int list_directory(const char *directory_path)
+int list_directory(const char *directory_path, int show_path_heading)
 {
     DIR *directory;
     struct dirent *entry;
@@ -74,6 +74,11 @@ int list_directory(const char *directory_path)
     if (directory == NULL) {
         fprintf(stderr, "tumls: cannot open directory\n");
         return 1;
+    }
+
+    /* Print this heading only after the requested directory opened. */
+    if (show_path_heading) {
+        printf("[[%s]]\n\n", directory_path);
     }
 
     /* readdir returns one entry at a time and includes . and .. */
@@ -107,7 +112,7 @@ int main(int argc, char *argv[])
 {
     /* No argument means list only the current directory. */
     if (argc == 1) {
-        return list_directory(".");
+        return list_directory(".", 0);
     }
 
     /* This program accepts no more than one directory argument. */
@@ -116,15 +121,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    printf("[[%s]]\n\n", argv[1]);
-
-    if (list_directory(argv[1]) == 1) {
+    if (list_directory(argv[1], 1) == 1) {
         return 1;
     }
 
     printf("\nListing: current directory\n\n");
 
-    if (list_directory(".") == 1) {
+    if (list_directory(".", 0) == 1) {
         return 1;
     }
 
