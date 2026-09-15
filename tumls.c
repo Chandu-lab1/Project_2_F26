@@ -1,4 +1,6 @@
+#include <limits.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
 
 /* Turns the permission bits into a string such as rwxr-xr-x. */
@@ -16,10 +18,47 @@ void get_permissions(mode_t mode, char permissions[])
     permissions[9] = '\0';
 }
 
+/* Gets the metadata for one entry and prints it on one line. */
+void print_entry(const char *directory_path, const char *file_name)
+{
+    char full_path[PATH_MAX];
+    char permissions[10];
+    struct stat file_info;
+    const char *file_type;
+    int path_length;
+
+    /* readdir gives only a name, so add the directory before using stat. */
+    if (strcmp(directory_path, "/") == 0) {
+        path_length = snprintf(full_path, sizeof(full_path), "%s%s",
+                               directory_path, file_name);
+    } else {
+        path_length = snprintf(full_path, sizeof(full_path), "%s/%s",
+                               directory_path, file_name);
+    }
+
+    /* A path that does not fit cannot be safely passed to stat. */
+    if (path_length < 0 || path_length >= (int)sizeof(full_path)) {
+        return;
+    }
+
+    /* The project says to skip an entry if stat fails. */
+    if (stat(full_path, &file_info) == -1) {
+        return;
+    }
+
+    if (S_ISDIR(file_info.st_mode)) {
+        file_type = "[DIR]";
+    } else {
+        file_type = "[FILE]";
+    }
+
+    get_permissions(file_info.st_mode, permissions);
+
+    printf("%-6s %-9s %10lld  %s\n", file_type, permissions,
+           (long long)file_info.st_size, file_name);
+}
+
 int main(void)
 {
-    char permissions[10];
-
-    get_permissions(0, permissions);
     return 0;
 }
