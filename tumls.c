@@ -48,14 +48,17 @@ void print_entry(const char *directory_path, const char *file_name)
         return;
     }
 
+    /* S_ISDIR checks the file-type bits stored inside st_mode. */
     if (S_ISDIR(file_info.st_mode)) {
         file_type = "[DIR]";
     } else {
         file_type = "[FILE]";
     }
 
+    /* The same st_mode value also stores the nine permission bits. */
     get_permissions(file_info.st_mode, permissions);
 
+    /* The columns are type, permissions, size in bytes, and entry name. */
     printf("%-6s %-9s %10lld  %s\n", file_type, permissions,
            (long long)file_info.st_size, file_name);
 }
@@ -127,3 +130,14 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+/*
+ * Project 2: The Enhanced Directory Explorer (tumls)
+ *
+ * This program works like a simple version of ls. It uses opendir() to open
+ * a directory and readdir() to get the names inside it. For every name, it
+ * creates the full path and passes that path to stat(). The stat structure
+ * gives the program the file type, permission bits, and size in bytes.
+ *
+ * stat() follows symbolic links, which is required for this project. If stat()
+ * fails for one entry, that entry is skipped and the program keeps going.
+ */
