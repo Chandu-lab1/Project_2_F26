@@ -1,3 +1,15 @@
+/*
+ * Project 2: The Enhanced Directory Explorer (tumls)
+ *
+ * This program works like a simple version of ls. It uses opendir() to open
+ * a directory and readdir() to get the names inside it. For every name, it
+ * creates the full path and passes that path to stat(). The stat structure
+ * gives the program the file type, permission bits, and size in bytes.
+ *
+ * stat() follows symbolic links, which is required for this project. If stat()
+ * fails for one entry, that entry is skipped and the program keeps going.
+ */
+
 #include <dirent.h>
 #include <errno.h>
 #include <limits.h>
@@ -133,14 +145,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-/*
- * Project 2: The Enhanced Directory Explorer (tumls)
- *
- * This program works like a simple version of ls. It uses opendir() to open
- * a directory and readdir() to get the names inside it. For every name, it
- * creates the full path and passes that path to stat(). The stat structure
- * gives the program the file type, permission bits, and size in bytes.
- *
- * stat() follows symbolic links, which is required for this project. If stat()
- * fails for one entry, that entry is skipped and the program keeps going.
- */
