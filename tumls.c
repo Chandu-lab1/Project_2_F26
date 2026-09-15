@@ -1,3 +1,4 @@
+#include <dirent.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -58,7 +59,29 @@ void print_entry(const char *directory_path, const char *file_name)
            (long long)file_info.st_size, file_name);
 }
 
+/* Opens one directory and goes through each entry inside it. */
+int list_directory(const char *directory_path)
+{
+    DIR *directory;
+    struct dirent *entry;
+
+    directory = opendir(directory_path);
+
+    if (directory == NULL) {
+        fprintf(stderr, "tumls: cannot open directory\n");
+        return 1;
+    }
+
+    /* readdir returns one entry at a time and includes . and .. */
+    while ((entry = readdir(directory)) != NULL) {
+        print_entry(directory_path, entry->d_name);
+    }
+
+    closedir(directory);
+    return 0;
+}
+
 int main(void)
 {
-    return 0;
+    return list_directory(".");
 }
