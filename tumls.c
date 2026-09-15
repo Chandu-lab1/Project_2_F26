@@ -17,18 +17,28 @@
 #include <string.h>
 #include <sys/stat.h>
 
-/* Turns the permission bits into a string such as rwxr-xr-x. */
+/*
+ * Turns the permission bits into a string such as rwxr-xr-x.
+ * The & operator checks whether each permission bit is turned on.
+ */
 void get_permissions(mode_t mode, char permissions[])
 {
+    /* The first three characters are the owner's permissions. */
     permissions[0] = (mode & S_IRUSR) ? 'r' : '-';
     permissions[1] = (mode & S_IWUSR) ? 'w' : '-';
     permissions[2] = (mode & S_IXUSR) ? 'x' : '-';
+
+    /* The next three characters are the group's permissions. */
     permissions[3] = (mode & S_IRGRP) ? 'r' : '-';
     permissions[4] = (mode & S_IWGRP) ? 'w' : '-';
     permissions[5] = (mode & S_IXGRP) ? 'x' : '-';
+
+    /* The last three characters are everyone else's permissions. */
     permissions[6] = (mode & S_IROTH) ? 'r' : '-';
     permissions[7] = (mode & S_IWOTH) ? 'w' : '-';
     permissions[8] = (mode & S_IXOTH) ? 'x' : '-';
+
+    /* A C string needs a null character at the end. */
     permissions[9] = '\0';
 }
 
@@ -81,8 +91,10 @@ int list_directory(const char *directory_path, int show_path_heading)
     DIR *directory;
     struct dirent *entry;
 
+    /* opendir returns a pointer that is used by readdir. */
     directory = opendir(directory_path);
 
+    /* A NULL pointer means the directory could not be opened. */
     if (directory == NULL) {
         fprintf(stderr, "tumls: cannot open directory\n");
         return 1;
@@ -96,12 +108,14 @@ int list_directory(const char *directory_path, int show_path_heading)
     /* readdir returns one entry at a time and includes . and .. */
     while (1) {
         errno = 0;
+        /* Ask the operating system for the next directory entry. */
         entry = readdir(directory);
 
         if (entry == NULL) {
             break;
         }
 
+        /* d_name stores the name of the current entry. */
         print_entry(directory_path, entry->d_name);
     }
 
@@ -112,6 +126,7 @@ int list_directory(const char *directory_path, int show_path_heading)
         return 1;
     }
 
+    /* Close the directory after the program finishes reading it. */
     if (closedir(directory) == -1) {
         fprintf(stderr, "tumls: cannot open directory\n");
         return 1;
@@ -122,7 +137,7 @@ int list_directory(const char *directory_path, int show_path_heading)
 
 int main(int argc, char *argv[])
 {
-    /* No argument means list only the current directory. */
+    /* argc includes the program name, so argc == 1 means no arguments. */
     if (argc == 1) {
         return list_directory(".", 0);
     }
@@ -133,10 +148,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    /* argv[1] is the directory path typed after ./tumls. */
     if (list_directory(argv[1], 1) == 1) {
         return 1;
     }
 
+    /* The assignment requires the current directory as the second list. */
     printf("\nListing: current directory\n\n");
 
     if (list_directory(".", 0) == 1) {
