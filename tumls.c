@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -73,11 +74,29 @@ int list_directory(const char *directory_path)
     }
 
     /* readdir returns one entry at a time and includes . and .. */
-    while ((entry = readdir(directory)) != NULL) {
+    while (1) {
+        errno = 0;
+        entry = readdir(directory);
+
+        if (entry == NULL) {
+            break;
+        }
+
         print_entry(directory_path, entry->d_name);
     }
 
-    closedir(directory);
+    /* NULL normally means the end, but errno tells us if scanning failed. */
+    if (errno != 0) {
+        closedir(directory);
+        fprintf(stderr, "tumls: cannot open directory\n");
+        return 1;
+    }
+
+    if (closedir(directory) == -1) {
+        fprintf(stderr, "tumls: cannot open directory\n");
+        return 1;
+    }
+
     return 0;
 }
 
