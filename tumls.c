@@ -81,7 +81,30 @@ int list_directory(const char *directory_path)
     return 0;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    return list_directory(".");
+    /* No argument means list only the current directory. */
+    if (argc == 1) {
+        return list_directory(".");
+    }
+
+    /* This program accepts no more than one directory argument. */
+    if (argc != 2) {
+        fprintf(stderr, "tumls: cannot open directory\n");
+        return 1;
+    }
+
+    printf("[[%s]]\n\n", argv[1]);
+
+    if (list_directory(argv[1]) == 1) {
+        return 1;
+    }
+
+    printf("\nListing: current directory\n\n");
+
+    if (list_directory(".") == 1) {
+        return 1;
+    }
+
+    return 0;
 }
