@@ -1,6 +1,4 @@
-all: tumls
-
-tumls: tumls.c
+all:
 	gcc -o tumls tumls.c -Wall -Werror
 
 clean:
